@@ -1,6 +1,8 @@
+import datetime
+
 import ApiHelper
 import FormatHelper
-from datetime import timedelta
+from datetime import timedelta, date
 import GraphHelper
 
 crypto_signs = ["BTC", "ETH"]
@@ -12,76 +14,33 @@ def greetings():
     print("Привет! Это крипто бот, который готов помочь найти нужный курс криптовалюты.")
 
 
-def input_crypto_id() -> str:
+def input_id(input_text, variants) -> str:
     request_text = ""
-    for index, sign in enumerate(crypto_signs):
+    for index, sign in enumerate(variants):
         request_text += f"[{index}] {sign}\n"
     print(request_text)
-    return input("Введите номер крипты: ")
+    return input(input_text)
 
 
-def input_currency_id() -> str:
-    request_text = ""
-    for index, sign in enumerate(currency_signs):
-        request_text += f"[{index}] {sign}\n"
-    print(request_text)
-    return input("Введите номер валюты: ")
-
-
-def input_date_variant_id() -> str:
-    request_text = ""
-    for index, sign in enumerate(date_variants):
-        request_text += f"[{index}] {sign}\n"
-    print(request_text)
-    return input("Введите вариант выборки: ")
-
-
-def get_crypto_id() -> int:
+def get_variant_id(input_text, variants) -> int:
     while True:
         try:
-            crypto_id = int(input_crypto_id())
-            if crypto_id < 0 or crypto_id >= len(crypto_signs):
+            id = int(input_id(input_text, variants))
+            if id < 0 or id >= len(variants):
                 raise ValueError()
         except ValueError:
             print("Извините, не понял, что вы ввели. Попробуйте ещё раз!")
         else:
-            return crypto_id
-
-
-def get_currency_id() -> int:
-    while True:
-        try:
-            currency_id = int(input_currency_id())
-            if currency_id < 0 or currency_id >= len(currency_signs):
-                raise ValueError()
-        except ValueError:
-            print("Извините, не понял, что вы ввели. Попробуйте ещё раз!")
-        else:
-            return currency_id
-
-
-def get_date_variant_id() -> int:
-    while True:
-        try:
-            date_variant_id = int(input_date_variant_id())
-            if date_variant_id < 0 or date_variant_id >= len(date_variants):
-                raise ValueError()
-        except ValueError:
-            print("Извините, не понял, что вы ввели. Попробуйте ещё раз!")
-        else:
-            return date_variant_id
+            return id
 
 
 def main():
     try:
         greetings()
-        crypto = crypto_signs[get_crypto_id()]
-        currency_sign = currency_signs[get_currency_id()]
-        date_variant_id = get_date_variant_id()
-        today = date.today()
-        today_year = today.year
-        today_month = today.month
-        today_day = today.day
+        crypto = crypto_signs[get_variant_id("Введите номер крипты: ", crypto_signs)]
+        currency_sign = currency_signs[get_variant_id("Введите номер валюты: ", currency_signs)]
+        date_variant_id = get_variant_id("Введите вариант выборки: ", date_variants)
+        today = datetime.date.today()
         if date_variant_id == 0:
             dates = [
                 today - timedelta(days=6),
@@ -120,4 +79,9 @@ def main():
                                currency_sign=currency_sign,
                                crypto_currencies=crypto_currencies)
     except ConnectionError:
-        print("Failed to load data. Check your internet connection!")
+        print("Ошибка загрузки данных. Проверьте ваше интернет соединение!")
+    except Exception:
+        print("Произошла непредвиденная ошибка!")
+
+
+main()
